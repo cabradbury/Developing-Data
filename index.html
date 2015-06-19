@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Coursera - Developing Data Products</title>
+  <meta charset="utf-8">
+  <meta name="description" content="Coursera - Developing Data Products">
+  <meta name="author" content="Charles Bradbury">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/custom.css"/>
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  <link rel=stylesheet href="./assets/css/ribbons.css"></link>
+
+  
+  <!-- Grab CDN jQuery, fall back to local if offline -->
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+  <script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+  
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+        <slide class="title-slide segue nobackground">
+  <hgroup class="auto-fadein">
+    <h1>Coursera - Developing Data Products</h1>
+    <h2>Project - Texual Analysis of Mark Twain Books</h2>
+    <p>Charles Bradbury<br/></p>
+  </hgroup>
+  <article></article>  
+</slide>
+    
+
+    <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>Introduction</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>The pupose of this project is to provide a tool that will show the user
+a wordcloud text analysis of two popular books by Mark Twain. This may
+seem like a trival example, but can be powerful in industry. When you 
+have a large amount of text data and you&#39;d like to visulaize patterns
+or areas of significance, this can be very useful. I use this technique
+along with other tools from the &quot;tm&quot; package on a dialy basis in my 
+analyis for my day job.
+<br>
+<br>
+<br></p>
+
+<h1><strong>Word cloud:</strong></h1>
+
+<p><br>
+<em>An image composed of words use in a particular text or subject,</em> 
+<em>in which the size of each word indicates the frequency or importance.</em> </p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="class" id="id" style="background:;">
+  <hgroup>
+    <h2>R Libraries Required</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>In order to perform the anaysis shown in this example you will need
+to load the following libraries:</p>
+
+<pre><code class="r">library(tm)
+library(wordcloud)
+library(memoise)
+require(shiny)
+require(httr)
+require(markdown)
+</code></pre>
+
+<p>The <strong>tm</strong> package is the texual analysis package that we will use a few functions from. 
+The <strong>wordcloud</strong> package will provide us functions for creating the actual wordcloud image. 
+The <strong>memoise</strong> package is used for caching results to increase speed for looking at the analysis after it
+has been fully processed once. This way the user/cusomter does not need to wait for processing each time 
+they change an option on the application.
+<br>
+<br>
+These are all packages easily obtainable for R both 3.1.x and 3.2.x and do not require a lot of overhead
+to use and run.</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-3" style="background:;">
+  <hgroup>
+    <h2>Methodology</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>First we will load the list of valid books. This can be extened to whatever texts you wish to analyze.</p>
+
+<pre><code class="r"># The list of valid books.
+books &lt;&lt;- list(&quot;Adventures of Huckleberry Finn&quot; = &quot;pg76.txt&quot;,
+               &quot;The Adventures of Tom Sawyer&quot; = &quot;pg74.txt&quot;)
+</code></pre>
+
+<p>The code the follows will be a fucntion that takes advantage of the <strong>memoise</strong> package. This allows us to cache resutls to allow
+faster processing once the code is run initally. This function will create a Document Term Matrix that the <strong>tm</strong> package uses to
+determine statistics on the text (word count, etc.).</p>
+
+<pre><code class="r">getTermMatrix &lt;- memoise(function(book) {
+
+        # Our processing code will go here
+
+}
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-4" style="background:;">
+  <hgroup>
+    <h2>Methodology (cont&#39;d)</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Inside the function we will place the following code that will actually process the text and compute the statistics.</p>
+
+<pre><code class="r">if (!(book %in% books))
+                stop(&quot;Unknown New Paper&quot;)
+
+        text &lt;- readLines(sprintf(&quot;%s&quot;, book), encoding=&quot;UTF-8&quot;)
+        myCorpus = Corpus(VectorSource(text))
+        myCorpus = tm_map(myCorpus, content_transformer(tolower))
+        myCorpus = tm_map(myCorpus, removePunctuation)
+        myCorpus = tm_map(myCorpus, removeNumbers)
+        myCorpus = tm_map(myCorpus, removeWords,
+                c(stopwords(&quot;SMART&quot;), &quot;thy&quot;, &quot;thou&quot;, &quot;thee&quot;, &quot;the&quot;, &quot;and&quot;, &quot;but&quot;))
+        myDTM = TermDocumentMatrix(myCorpus,
+                control = list(minWordLength = 1))
+        m = as.matrix(myDTM)
+        sort(rowSums(m), decreasing = TRUE)
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-5" style="background:;">
+  <hgroup>
+    <h2>Shiny</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>Now, we have this fancy code that computes some really cool statistics on our text, right? Now how
+do we deliver it to our customer who might now have experience with R or may not be technical at all?
+<br>
+<br>
+This is where Shiny comes in. We will use this package to create a web application that wraps an easy
+to use interface over our code so the user can easily view and adjust the statistics. This reqires three
+basic files in order to work:
+<br></p>
+
+<ul>
+<li>global.R (our processing code)</li>
+<li>server.R (the code that contains the instructions that your computer needs to build the application)</li>
+<li>ui.R (the code that will build the UI functions of the web application)
+<br>
+<br>
+The <strong>global.R</strong> was covered in the previous slides. The shiny setup is fairly simple and will be left
+as an exercise, however, the code for both the <strong>server.R</strong> and <strong>ui.R</strong> can be found at:
+<br>
+<br>
+<a href="https://github.com/cabradbury/Developing-Data-Products-Project-1">https://github.com/cabradbury/Developing-Data-Products-Project-1</a></li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-6" style="background:;">
+  <hgroup>
+    <h2>Shiny (cont&#39;d)</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>The sceenshot below is the applciation loaded in your browser.
+<br>
+<br>
+<img src="./assets/img/img1.png" align="middle" width="900" margin="0 auto" />
+<br>
+<br>
+You can find the application here: 
+<br>
+<a href="https://cabradbury.shinyapps.io/Developing-Data-Products-Project-1">https://cabradbury.shinyapps.io/Developing-Data-Products-Project-1</a></p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-7" style="background:;">
+  <hgroup>
+    <h2>Conclusion</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>If you need to provie insight or actionable information to your organization you can 
+present it in a very usable format to your leadership thorugh the use of the following 
+tools:
+<br>
+<br></p>
+
+<ul>
+<li>R: Peform your data science and analytics.</li>
+<li>Shiny: Provide your user interface to provide useful tools to manipulate the data.</li>
+<li>Slidify/Knitr/R Presentation: Provide documentation and presentation of your findings.
+<br>
+<br></li>
+</ul>
+
+<h1>Have fun!!!</h1>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+  <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
+    <ul>
+      <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=1 title='Introduction'>
+         1
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=2 title='R Libraries Required'>
+         2
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=3 title='Methodology'>
+         3
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=4 title='Methodology (cont&#39;d)'>
+         4
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=5 title='Shiny'>
+         5
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=6 title='Shiny (cont&#39;d)'>
+         6
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=7 title='Conclusion'>
+         7
+      </a>
+    </li>
+  </ul>
+  </div>  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+  <!-- Load Javascripts for Widgets -->
+  
+  <!-- LOAD HIGHLIGHTER JS FILES -->
+  <script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <!-- DONE LOADING HIGHLIGHTER JS FILES -->
+   
+  </html>

@@ -1,0 +1,15 @@
+base
+RColorBrewer
+wordcloud
+NLP
+tm
+tm.plugin.webmining
+XML
+memoise
+shinyapps
+shiny
+httr
+markdown
+devtools
+slidify
+slidifyLibraries

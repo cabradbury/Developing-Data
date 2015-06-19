@@ -136,7 +136,7 @@ https://cabradbury.shinyapps.io/Developing-Data-Products-Project-1
 
 ## Conclusion
 If you need to provie insight or actionable information to your organization you can 
-present it in a very usable format to your leadership thorugh the use of the following 
+present it in a very usable format to your leadership through the use of the following 
 tools:
 <br>
 <br>
